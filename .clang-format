@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+---
+Language: Cpp
+PointerAlignment: Left
+AllowShortBlocksOnASingleLine: Empty
+ColumnLimit: 120
+ReferenceAlignment: Right
+SpacesBeforeTrailingComments: 2
+BreakBeforeTernaryOperators: False
