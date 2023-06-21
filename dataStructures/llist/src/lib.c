@@ -3,7 +3,6 @@
  *
  *
  *
- *
  */
 
 #include "../inc/lib.h"
@@ -24,6 +23,7 @@ void llist_deinit(struct llist list) {
     free(ptr);
     ptr = llist_pop(&list, head);
   }
+  list.tail = NULL;
 
   if (list.head == NULL && list.tail == NULL) {
     return;
@@ -48,42 +48,37 @@ void llist_push(struct llist* list, void* item) {
 }
 
 void* llist_pop(struct llist* list, llside side) {
-  void* item;
-  struct lnode* old = NULL;
-
-  if (list->length < 1) {
+  if (list->head == NULL) {
     return NULL;
-  } else {
-    switch (side) {
-    case head:
-      old = list->head;
-      list->head = old->next;
-      break;
-
-    case tail:
-      old = list->tail;
-      struct lnode* new_tail = list->head;
-      while (new_tail->next != old && new_tail->next != NULL) {
-        new_tail = new_tail->next;
+  }
+  struct lnode* popped_node;
+  void* popped_item;
+  switch (side) {
+  case head: {
+    popped_node = list->head;
+    popped_item = list->head->item;
+    list->head = popped_node->next;
+    break;
+  }
+  case tail: {
+    popped_node = list->tail;
+    popped_item = list->tail->item;
+    if (list->head == list->tail) {
+      list->head = NULL;
+      list->tail = NULL;
+    } else {
+      struct lnode* cursor = list->head;
+      while (cursor->next != popped_node && cursor->next != NULL) {
+        cursor = cursor->next;
       }
-      list->tail = new_tail;
-      break;
+      cursor->next = NULL;
+      list->tail = cursor;
     }
+    break;
   }
-
+  }
   list->length--;
-  item = old->item;
-
-  if (list->head == NULL || list->tail == NULL) {
-    list->head = NULL;
-    list->tail = NULL;
-  }
-
-  if (old != NULL) {
-    free(old);
-  }
-
-  return item;
+  return popped_item;
 }
 
 void* llist_select(struct llist* list, void* item, int (*compare_fn)(void* item1, void* item2)) {
@@ -123,7 +118,7 @@ size_t pack_array(struct lnode** source, struct llist* dest) {
   struct lnode* ptr = dest->head;
   dest->head = source[0];
   int j;
-  for (j = 1; j < dest->length; j++) {
+  for (j = 0; j < dest->length; j++) {
     ptr->next = source[j];
     ptr = ptr->next;
   }
@@ -198,7 +193,7 @@ void* value_at(struct llist* list, size_t index) {
   if (empty(list) || index >= list->length) {
     return NULL;
   } else {
-    return traverse_n_nodes(list->head, index);
+    return traverse_n_nodes(list->head, index)->item;
   }
 }
 
@@ -206,18 +201,34 @@ size_t push_front(struct llist* list, void* item) {
   struct lnode* new = malloc(sizeof(lnode));
   new->item = item;
   new->next = list->head;
+  if (list->head == NULL) {
+    list->tail = new;
+  }
   list->head = new;
+  list->length++;
   return 0;
 }
 
 size_t push_back(struct llist* list, void* item) {
-  llist_push(list, item);
-  return list->length - 1;
+  struct lnode* new = malloc(sizeof(lnode));
+  new->item = item;
+  list->length++;
+  if (list->tail == NULL) {
+    new->next = NULL;
+    list->head = new;
+    list->tail = new;
+    return 1;
+  } else {
+    new->next = list->tail->next;
+    list->tail->next = new;
+    list->tail = new;
+    return list->length - 1;
+  }
 }
 
-void* pop_back(struct llist* list) { return llist_pop(list, head); }
+void* pop_back(struct llist* list) { return llist_pop(list, tail); }
 
-void* pop_front(struct llist* list) { return llist_pop(list, tail); }
+void* pop_front(struct llist* list) { return llist_pop(list, head); }
 
 void* front(struct llist* list) { return list->head->item; }
 
@@ -254,14 +265,14 @@ void* value_n_from_end(struct llist* list, size_t offset) {
     return NULL;
   }
   size_t n_to_traverse = list->length - offset;
-  return traverse_n_nodes(list->head, n_to_traverse);
+  return traverse_n_nodes(list->head, n_to_traverse)->item;
 }
 
 size_t reverse(struct llist* list) {
   struct lnode** array = unpack_array(list);
   int bcursor = list->length - 1;
-  int fcursor;
-  for (fcursor = 0; fcursor < list->length && bcursor > fcursor; fcursor++) {
+  int fcursor = 0;
+  while (fcursor < list->length && bcursor > fcursor) {
     struct lnode* holder = array[fcursor];
     array[fcursor] = array[bcursor];
     array[bcursor] = holder;
@@ -271,8 +282,18 @@ size_t reverse(struct llist* list) {
   return pack_array(array, list);
 }
 
-size_t find(struct llist* list, void* item);
+size_t find(struct llist* list, void* item) {
+  struct lnode* cursor = list->head;
+  size_t counter = 0;
+  while (cursor != NULL && cursor->item != item) {
+    cursor = cursor->next;
+    counter++;
+  }
+  return counter;
+}
 
-size_t remove_value(struct llist* list, void* item);
-
-#endif  // LLIST_H
+size_t remove_value(struct llist* list, void* item) {
+  size_t index = find(list, item);
+  erase(list, index);
+  return index;
+}
