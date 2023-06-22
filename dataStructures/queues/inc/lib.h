@@ -15,10 +15,12 @@ int llempty(llqueue* q);
 typedef struct ArrayQueue {
   int size;
   int item_size;
+  int cursor;
   void** array;
 } aqueue;
 
+aqueue aqueue_init(size_t size);
 int aenqueue(aqueue* q, void* value);  //- adds item at end of available storage
 void* adequeue(aqueue* q);             //- returns value and removes least recently added element
 int aempty(aqueue* q);
-int full(aqueue* q);
+int afull(aqueue* q);
