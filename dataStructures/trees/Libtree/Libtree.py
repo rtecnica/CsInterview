@@ -2,9 +2,6 @@ from dataclasses import dataclass
 from typing import List
 from math import ceil
 
-LNODE = 0
-RNODE = 1
-
 
 class Node:
     def __init__(self, value, count, left, right):
