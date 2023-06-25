@@ -7,6 +7,7 @@ def main() -> int:
     potato = tree(node(3, 1, node(6, 1, node(-2, 1, node(
         1, 1, None, None), None), node(10, 1, None, None)), None), False)
     potato.print_values()
+    potato.pretty_print()
     print(f"Tree depth: {potato.get_depth()}")
     print(f"Node Count: {potato.get_node_count()}")
     print(f"Min val: {potato.get_min()}")
@@ -38,15 +39,17 @@ def main() -> int:
     print(f"Is binary tree: {insertion_tree.is_binary_search_tree()}")
     print(f"Is the value 77 in the tree? {insertion_tree.is_in_tree(77)}")
     print(f"Is the value 13 in the tree? {insertion_tree.is_in_tree(13)}")
-    for e in array:
-        print(f"Path to value {e}: {insertion_tree.find_value(e)}")
     insert_t_array = insertion_tree.IntoArray()
     print(insert_t_array)
     insert_t_array.sort()
     insert_t_from_array = tree.FromArray(insert_t_array)
+    value = 34
+    print(
+        f"Find value: {value}, found value: {insert_t_from_array.find_value(value).value}")
     print("Balanced tree by sorting corresponding array...")
-    for e in array:
-        print(f"Path to value {e}: {insert_t_from_array.find_value(e)}")
+    insert_t_from_array.pretty_print()
+    insert_t_from_array.delete_value(34)
+    insert_t_from_array.pretty_print()
 
 
 if __name__ == "__main__":
