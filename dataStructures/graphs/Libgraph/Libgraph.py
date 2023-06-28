@@ -5,7 +5,7 @@ class gNode():
 
     def __init__(self, name):
         self.name = name
-        self.adjMap = {}
+        self.adjMap = OrderedDict()
 
     def addAdjNode(self, node):
         self.adjMap[node.name] = node
@@ -14,7 +14,7 @@ class gNode():
 class Graph():
 
     def __init__(self):
-        self.nodes = {}
+        self.nodes = OrderedDict()
 
     def addNode(self, node: gNode):
         self.nodes[node.name] = node
@@ -42,8 +42,72 @@ class Graph():
                 print(self.nodes[n].adjMap[an].name, end=' ')
             print("")
 
-    def BFS(self):
+    def BFS_print(self):
+        visited = OrderedDict()
+        breadth_queue = OrderedDict()
+
+        for node in self.nodes.keys():
+            if node not in visited:
+                breadth_queue[node] = node
+                visited[node] = node
+
+            while len(breadth_queue) > 0:
+                item = breadth_queue.pop(list(breadth_queue.keys())[0])
+                print(self.nodes[item].name, end=' ')
+                for n in self.nodes[item].adjMap.keys():
+                    if n not in visited:
+                        breadth_queue[n] = n
+                        visited[n] = n
+                if len(breadth_queue) == 0:
+                    print("")
+
+    def BFS_traverse(self, func):
+        # TODO: add datastructure to track minimum paths
+        visited = OrderedDict()
+        breadth_queue = OrderedDict()
+
+        for node in self.nodes.keys():
+            if node not in visited:
+                breadth_queue[node] = node
+                visited[node] = node
+
+            while len(breadth_queue) > 0:
+                item = breadth_queue.pop(list(breadth_queue)[0])
+                func(self.nodes[item])
+                for n in self.nodes[item].adjMap:
+                    if n not in visited:
+                        breadth_queue[n] = n
+                        visited[n] = n
+
+    def DFS_print(self):
         visited = OrderedDict()
 
-    def DFS(self):
-        pass
+        def recurs_DFS(node):
+            nonlocal visited
+            if node not in visited:
+                visited[node] = node
+                print(self.nodes[node].name, end=' ')
+                for n in self.nodes[node].adjMap:
+                    if n not in visited:
+                        recurs_DFS(n)
+
+        for n in self.nodes:
+            if n not in visited:
+                recurs_DFS(n)
+                print("")
+
+    def DFS_traverse(self, func):
+        visited = OrderedDict()
+        # TODO: Leverage datastruct to draw minimum spanning tree
+
+        def recurs_DFS(node):
+            nonlocal visited
+            if node not in visited:
+                visited[node] = node
+                func(self.nodes[node])
+                for n in self.nodes[node].adjMap:
+                    if n not in visited:
+                        recurs_DFS(n)
+
+        for n in self.nodes:
+            recurs_DFS(n)
