@@ -1,0 +1,11 @@
+#define STX 0x02
+#define ETX 0x03
+#pragma once
+enum OPCODE {
+  ADD = 0x11,
+  SUBS = 0x12,
+  MUL = 0x13,
+  DIV = 0x14,
+  PRNT = 0x0A,
+  RST = 0x18,
+};
